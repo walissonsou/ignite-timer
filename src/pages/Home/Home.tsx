@@ -20,8 +20,12 @@ const newCycleFormSchema = zod.object({
 
 export function Home() {
 
-  const { register, handleSubmit, watch} = useForm({
-    resolver: zodResolver(newCycleFormSchema)
+  const { register, handleSubmit, watch} = useForm<itemsForm>({
+    resolver: zodResolver(newCycleFormSchema),
+    defaultValues:{
+      task: '',
+      timer: 0
+    }
   });
   /**
    * A function register, engloba outras três funções dentro de si:
@@ -35,7 +39,7 @@ export function Home() {
    * então quando coloco o register com o spread operator no meu input, é como se eu estivesse trabalhando com o onChange, onBlur.. etc
    */
   function HandleNewCicle(data: itemsForm) {
-    console.log(data)
+    console.log(data.task)    
   }
 
   const task = watch('task')
