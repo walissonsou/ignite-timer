@@ -17,6 +17,7 @@
     "react-hook-form": "^7.39.4",
     "react-router-dom": "^6.4.3",
     "styled-components": "^5.3.6",
+    "uuid": "^9.0.0",
     "zod": "^3.19.1"
   },
   "devDependencies": {
