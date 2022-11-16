@@ -1,9 +1,11 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { v4 as uuidv4 } from 'uuid';
 import * as zod from 'zod'
 
 
 import { CountdownContainer, FormContainer, HomeContainer, Separator, StartCountDownButton, TaskInput, TaskInputCount } from "./style";
+import { useState } from 'react';
 
 interface itemsForm {
   task: string;
@@ -18,7 +20,15 @@ const newCycleFormSchema = zod.object({
   .max(60, 'O ciclo precisa ser de máximo 60min'),
 })
 
+interface Cycle{
+  id: string,
+  task:string,
+  timer: number ,
+}
+
 export function Home() {
+
+const [cycle, setCycle] = useState<Cycle[]>([])
 
   const { register, handleSubmit, watch, reset} = useForm<itemsForm>({
     resolver: zodResolver(newCycleFormSchema),
@@ -38,8 +48,16 @@ export function Home() {
    * 
    * então quando coloco o register com o spread operator no meu input, é como se eu estivesse trabalhando com o onChange, onBlur.. etc
    */
+  const id = uuidv4()
   function HandleNewCicle(data: itemsForm) {
-    console.log(data.task) 
+    const newCyle: Cycle = {
+      id,
+      task: data.task,
+      timer: data.timer
+    } 
+    // sempre que um estado depender de versão anterior, é super recomendado setar o estado novo em formato de função "Closuers"
+    setCycle((state) => [...state, newCyle])
+    
     reset()   
   }
 
