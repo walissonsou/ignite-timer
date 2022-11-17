@@ -24,7 +24,7 @@ const newCycleFormSchema = zod.object({
   task: zod.string().min(1, 'Digite alguma coisa'),
   timer: zod
   .number()
-  .min(5, 'O ciclo precisa ser de no minimo 5min')
+  .min(1, 'O ciclo precisa ser de no minimo 5min')
   .max(60, 'O ciclo precisa ser de máximo 60min'),
 })
 
@@ -33,6 +33,7 @@ interface Cycle{
   task:string,
   timer: number,  
   start: Date,
+  interruptedDate?: Date,
 }
 
 export function Home() {
@@ -63,14 +64,26 @@ const [ qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
   const seconds = String(quantidadeDeSegundos).padStart(2, '0')  
 
   useEffect(() => {
+    let interval: number
+
     if(activeCycle){
-      setInterval(() => {
-        setQtddSegundosPassados(differenceInSeconds(new Date(),
-        activeCycle.start),
-        )
+      interval = setInterval(() => {
+      const secondsDiference = differenceInSeconds(
+        new Date(),
+        activeCycle.start
+        )        
+
+        if (secondsDiference >= totalDeSegundos){
+          alert('Ciclo no fim')
+        }
+        setQtddSegundosPassados(secondsDiference)
       }, 1000)
     }
-  }, [activeCycle])
+    
+    return () => {
+      clearInterval(interval)
+    }
+  }, [activeCycle, totalDeSegundos])
 
   // mudar o title
   useEffect(() => {
@@ -81,13 +94,24 @@ const [ qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
 
   const id = uuidv4()
 
+  function handleStopCount() {
+    setCycle(
+      cycle.map((cycle) => {
+        if( cycle.id == activeId ){
+          return {...cycle, interruptedDate: new Date()}
+        } else
+        return cycle
+      })
+    )
+  }
+
   function HandleNewCicle(data: itemsForm) {
     const newCyle: Cycle = {
       id,
       task: data.task,
       timer: data.timer,
-      start: new Date()
-    }  
+      start: new Date(),
+  }  
 
     setCycle((state) => [...state, newCyle])
     setActiveId(id)
@@ -108,10 +132,12 @@ const [ qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
           <TaskInput
             id="task"
             placeholder="Dê um nome para o seu projeto"
+            disabled={!!activeCycle}
             {...register("task",
              { required: true,
               minLength: 5, 
               maxLength: 20 })}>
+           
           </TaskInput>
           <label htmlFor="minutes">
              durante 
@@ -120,7 +146,7 @@ const [ qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
             type="number" 
             id="minutes" 
             placeholder="0 0"
-            step={5}
+            step={1}
             {...register("timer", { valueAsNumber: true })}>
           </TaskInputCount>
           <span> minutos.</span>
@@ -136,7 +162,7 @@ const [ qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
 
         <StopCountDownButton
          type="button"
-         
+         onClick={handleStopCount}         
         >
           <HandPalm size={24} />
           Stop
