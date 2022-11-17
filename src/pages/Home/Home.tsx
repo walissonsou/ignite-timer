@@ -5,7 +5,7 @@ import * as zod from 'zod'
 
 
 import { CountdownContainer, FormContainer, HomeContainer, Separator, StartCountDownButton, TaskInput, TaskInputCount } from "./style";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface itemsForm {
   task: string;
@@ -23,10 +23,12 @@ const newCycleFormSchema = zod.object({
 interface Cycle{
   id: string,
   task:string,
-  timer: number ,
+  timer: number,  
 }
 
 export function Home() {
+
+const [ activeId, setActiveId] = useState<string | null>(null)
 
 const [cycle, setCycle] = useState<Cycle[]>([])
 
@@ -37,58 +39,79 @@ const [cycle, setCycle] = useState<Cycle[]>([])
       timer: 0
     }
   });
-  /**
-   * A function register, engloba outras três funções dentro de si:
-   * function register(name: string){
-   * return (
-   * On change: () => void;
-   * onBlur: () => void;
-   * onFocus: () => void; 
-   * )}
-   * 
-   * então quando coloco o register com o spread operator no meu input, é como se eu estivesse trabalhando com o onChange, onBlur.. etc
-   */
+
+   const [ qQtddDeSegundosPassados,setQtddSegundosPassados ] = useState(0)
+
+   const activeCycle = cycle.find(cycle => cycle.id == activeId)   
+   const totalDeSegundos = activeCycle ? activeCycle.timer  * 60 : 0
+   const atuaisSegundos = activeCycle ? totalDeSegundos - qQtddDeSegundosPassados : 0    // calcular 
+   const quantidadeDeMinutos = Math.floor(atuaisSegundos / 60)
+   const quantidadeDeSegundos = atuaisSegundos % 60   
+   const minutes = String(quantidadeDeMinutos).padStart(2,'0')
+   const seconds = String(quantidadeDeSegundos).padStart(2,'0')
+  
+  console.log(activeCycle)
+
   const id = uuidv4()
+
+  useEffect(() => {
+    if(activeCycle) {
+      document.title = `${minutes}:${seconds}`
+    }
+    
+  }, [minutes, seconds])
+
   function HandleNewCicle(data: itemsForm) {
     const newCyle: Cycle = {
       id,
       task: data.task,
       timer: data.timer
-    } 
-    // sempre que um estado depender de versão anterior, é super recomendado setar o estado novo em formato de função "Closuers"
+    }      
+    // sempre que um estado depender de versão anterior,
+    // é super recomendado setar o estado novo em formato 
+    // de função "Closuers"
     setCycle((state) => [...state, newCyle])
-    
+    setActiveId(id)
     reset()   
   }
 
   const task = watch('task')
   const taskDisabled = !task
 
+  
   return (
     <HomeContainer>
       <form onSubmit={handleSubmit(HandleNewCicle)}>
         <FormContainer>
-          <label htmlFor="task"> Vou trabalhar em </label>
+          <label htmlFor="task">
+             Vou trabalhar em 
+          </label>
           <TaskInput
             id="task"
             placeholder="Dê um nome para o seu projeto"
-            {...register("task", { required: true, minLength: 5, maxLength: 20 })}
-          >
+            {...register("task",
+             { required: true,
+              minLength: 5, 
+              maxLength: 20 })}>
           </TaskInput>
-          <label htmlFor="minutes"> durante </label>
-          <TaskInputCount type="number" id="minutes" placeholder="0 0"
-          step={5}
-            {...register("timer", { valueAsNumber: true })}
-
-          ></TaskInputCount>
+          <label htmlFor="minutes">
+             durante 
+          </label>
+          <TaskInputCount
+            type="number" 
+            id="minutes" 
+            placeholder="0 0"
+            step={5}
+            {...register("timer", { valueAsNumber: true })}>
+          </TaskInputCount>
           <span> minutos.</span>
         </FormContainer>
         <CountdownContainer>
-          <span>0</span>
-          <span>0</span>
+          <span>{minutes[0]}</span>
+          <span>{minutes[1]}</span>
           <Separator>:</Separator>
-          <span>0</span>
-          <span>0</span>
+          <span>{seconds[0]}</span>
+          <span>{seconds[1]}</span>
         </CountdownContainer>
         <StartCountDownButton
           disabled={taskDisabled} type="submit"
