@@ -4,15 +4,16 @@ import { v4 as uuidv4 } from 'uuid';
 import * as zod from 'zod'
 import { differenceInSeconds } from 'date-fns'
 import { HandPalm, Play } from 'phosphor-react'
-import { 
+import {
   CountdownContainer,
-  FormContainer, 
+  FormContainer,
   HomeContainer,
   Separator,
   StartCountDownButton,
   StopCountDownButton,
   TaskInput,
-  TaskInputCount } from "./style";
+  TaskInputCount
+} from "./style";
 import { useEffect, useState } from 'react';
 
 interface itemsForm {
@@ -30,66 +31,75 @@ const newCycleFormSchema = zod.object({
 
 interface Cycle{
   id: string,
-  task:string,
+  task: string,
   timer: number,  
   start: Date,
   interruptedDate?: Date,
+  finishDate?: Date
 }
 
 export function Home() {
 
-const [ activeId, setActiveId] = useState<string | null>(null)
-const [ cycle, setCycle] = useState<Cycle[]>([])
-const [ qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const [cycle, setCycle] = useState<Cycle[]>([])
+  const [qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
 
-  const { register, handleSubmit, watch, reset} = useForm<itemsForm>({
+  const { register, handleSubmit, watch, reset } = useForm<itemsForm>({
     resolver: zodResolver(newCycleFormSchema),
-    defaultValues:{
+    defaultValues: {
       task: '',
       timer: 0
     }
-  });   
+  });
 
-  const activeCycle = cycle.find(cycle => cycle.id == activeId) 
-    // calculo o segundo que foi passado no input
-  const totalDeSegundos = activeCycle ? activeCycle.timer  * 60 : 0
-    // verifico quantos segundos tem atualmente
-  const atuaisSegundos = activeCycle ? totalDeSegundos - qQtddDeSegundosPassados : 0 
-    // calculo e arredondo para nao ficar um numero quebrado a qtdd de minutos
+  const activeCycle = cycle.find(cycle => cycle.id == activeId)
+  // calculo o segundo que foi passado no input
+  const totalDeSegundos = activeCycle ? activeCycle.timer * 60 : 0
+  // verifico quantos segundos tem atualmente
+  const atuaisSegundos = activeCycle ? totalDeSegundos - qQtddDeSegundosPassados : 0
+  // calculo e arredondo para nao ficar um numero quebrado a qtdd de minutos
   const quantidadeDeMinutos = Math.floor(atuaisSegundos / 60)
-   // verifico a parte inteira dos atuais segundos 
-  const quantidadeDeSegundos = atuaisSegundos % 60   
-   // Passo o number para string e falo que para preencher o caractere com 2 caracteres, e quando nao ouver, preencher com '0'
+  // verifico a parte inteira dos atuais segundos 
+  const quantidadeDeSegundos = atuaisSegundos % 60
+  // Passo o number para string e falo que para preencher o caractere com 2 caracteres, e quando nao ouver, preencher com '0'
   const minutes = String(quantidadeDeMinutos).padStart(2, '0')
-  const seconds = String(quantidadeDeSegundos).padStart(2, '0')  
+  const seconds = String(quantidadeDeSegundos).padStart(2, '0')
 
   useEffect(() => {
     let interval: number
 
-    if(activeCycle){
+    if (activeCycle) {
       interval = setInterval(() => {
-      const secondsDiference = differenceInSeconds(
-        new Date(),
-        activeCycle.start
-        )        
+        const secondsDiference = differenceInSeconds(
+          new Date(),
+          activeCycle.start
+        )
 
-        if (secondsDiference >= totalDeSegundos){
-          alert('Ciclo no fim')
+        if (secondsDiference >= totalDeSegundos) {
+          setCycle(
+            cycle.map((cycle) => {
+              if (cycle.id == activeId) {
+                return { ...cycle, finishDate: new Date() }
+              } else
+                return cycle
+            })
+          )
+        } else {
+          setQtddSegundosPassados(secondsDiference)
         }
-        setQtddSegundosPassados(secondsDiference)
+       
       }, 1000)
     }
-    
+
     return () => {
       clearInterval(interval)
     }
   }, [activeCycle, totalDeSegundos])
 
-  // mudar o title
   useEffect(() => {
-    if(activeCycle) {
+    if (activeCycle) {
       document.title = `${minutes}:${seconds}`
-    }    
+    }
   }, [minutes, seconds])
 
   const id = uuidv4()
@@ -97,12 +107,13 @@ const [ qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
   function handleStopCount() {
     setCycle(
       cycle.map((cycle) => {
-        if( cycle.id == activeId ){
-          return {...cycle, interruptedDate: new Date()}
+        if (cycle.id == activeId) {
+          return { ...cycle, interruptedDate: new Date() }
         } else
-        return cycle
+          return cycle
       })
     )
+    setActiveId(null)
   }
 
   function HandleNewCicle(data: itemsForm) {
@@ -111,40 +122,42 @@ const [ qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
       task: data.task,
       timer: data.timer,
       start: new Date(),
-  }  
+    }
 
     setCycle((state) => [...state, newCyle])
     setActiveId(id)
-    reset()   
+    reset()
   }
 
   const task = watch('task')
   const taskDisabled = !task
 
-  
+
   return (
     <HomeContainer>
       <form onSubmit={handleSubmit(HandleNewCicle)}>
         <FormContainer>
           <label htmlFor="task">
-             Vou trabalhar em 
+            Vou trabalhar em
           </label>
           <TaskInput
             id="task"
             placeholder="Dê um nome para o seu projeto"
             disabled={!!activeCycle}
             {...register("task",
-             { required: true,
-              minLength: 5, 
-              maxLength: 20 })}>
-           
+              {
+                required: true,
+                minLength: 5,
+                maxLength: 20
+              })}>
+
           </TaskInput>
           <label htmlFor="minutes">
-             durante 
+            durante
           </label>
           <TaskInputCount
-            type="number" 
-            id="minutes" 
+            type="number"
+            id="minutes"
             placeholder="0 0"
             step={1}
             {...register("timer", { valueAsNumber: true })}>
@@ -158,22 +171,22 @@ const [ qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
           <span>{seconds[0]}</span>
           <span>{seconds[1]}</span>
         </CountdownContainer>
-        { activeCycle ? (
+        {activeCycle ? (
 
-        <StopCountDownButton
-         type="button"
-         onClick={handleStopCount}         
-        >
-          <HandPalm size={24} />
-          Stop
-        </StopCountDownButton>
-        ) : 
-        <StartCountDownButton
-          disabled={taskDisabled} type="submit"
-        >
-          <Play size={24} />
-          Iniciar
-        </StartCountDownButton>
+          <StopCountDownButton
+            type="button"
+            onClick={handleStopCount}
+          >
+            <HandPalm size={24} />
+            Stop
+          </StopCountDownButton>
+        ) :
+          <StartCountDownButton
+            disabled={taskDisabled} type="submit"
+          >
+            <Play size={24} />
+            Iniciar
+          </StartCountDownButton>
         }
       </form>
     </HomeContainer>
