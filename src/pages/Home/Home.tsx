@@ -29,8 +29,8 @@ interface Cycle{
 export function Home() {
 
 const [ activeId, setActiveId] = useState<string | null>(null)
-
-const [cycle, setCycle] = useState<Cycle[]>([])
+const [ cycle, setCycle] = useState<Cycle[]>([])
+const [ qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
 
   const { register, handleSubmit, watch, reset} = useForm<itemsForm>({
     resolver: zodResolver(newCycleFormSchema),
@@ -40,17 +40,20 @@ const [cycle, setCycle] = useState<Cycle[]>([])
     }
   });
 
-   const [ qQtddDeSegundosPassados,setQtddSegundosPassados ] = useState(0)
+   
 
-   const activeCycle = cycle.find(cycle => cycle.id == activeId)   
+   const activeCycle = cycle.find(cycle => cycle.id == activeId) 
+    // calculo o segundo que foi passado no input
    const totalDeSegundos = activeCycle ? activeCycle.timer  * 60 : 0
-   const atuaisSegundos = activeCycle ? totalDeSegundos - qQtddDeSegundosPassados : 0    // calcular 
+    // verifico quantos segundos tem atualmente
+   const atuaisSegundos = activeCycle ? totalDeSegundos - qQtddDeSegundosPassados : 0 
+    // calculo e arredondo para nao ficar um numero quebrado a qtdd de minutos
    const quantidadeDeMinutos = Math.floor(atuaisSegundos / 60)
+   // verifico a parte inteira dos atuais segundos 
    const quantidadeDeSegundos = atuaisSegundos % 60   
+   // Passo o number para string e falo que para preencher o caractere com 2 caracteres, e quando nao ouver, preencher com '0'
    const minutes = String(quantidadeDeMinutos).padStart(2,'0')
-   const seconds = String(quantidadeDeSegundos).padStart(2,'0')
-  
-  console.log(activeCycle)
+   const seconds = String(quantidadeDeSegundos).padStart(2,'0')  
 
   const id = uuidv4()
 
@@ -66,10 +69,8 @@ const [cycle, setCycle] = useState<Cycle[]>([])
       id,
       task: data.task,
       timer: data.timer
-    }      
-    // sempre que um estado depender de versão anterior,
-    // é super recomendado setar o estado novo em formato 
-    // de função "Closuers"
+    }  
+
     setCycle((state) => [...state, newCyle])
     setActiveId(id)
     reset()   
