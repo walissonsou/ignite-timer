@@ -27,7 +27,7 @@ align-items: center;
 justify-content: center;
 gap: 0.5rem;
 color: ${props => props.theme['gray-100']};
-font-size: 1.125rem;
+font-size: 1rem;
 flex-wrap: wrap;
 `
 const baseInput = styled.input`
@@ -110,5 +110,32 @@ color: ${props => props.theme['gray-100']};
   background: gray;
 }
 
+
+`
+export const StopCountDownButton = styled.button`
+width: 100%;
+border: 0;
+padding: 1rem;
+border-radius: 8px;
+
+display: flex;
+align-items: center;
+justify-content: center;
+
+gap: 8.5rem;
+font-weight: bold;
+
+cursor: pointer;
+
+background: ${props => props.theme['red-500']};
+color: ${props => props.theme['gray-100']};
+
+&:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+&:not(:disabled) :hover {
+  background: gray;
+}
 
 `
