@@ -1,6 +1,12 @@
 import { FormContainer, TaskInput, TaskInputCount } from "./styles";
 
+import { useContext } from "react";
+import { CyclesContext } from "../../Home";
+
+
 export function NewCycleForm(){
+  const { activeCycle }  = useContext(CyclesContext)
+
   return(
     <FormContainer>
           <label htmlFor="task">

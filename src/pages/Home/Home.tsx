@@ -11,7 +11,7 @@ import {
   StopCountDownButton,  
 } from "./style";
 
-import { createContext, createContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { NewCycleForm } from './components/NewCycleForm';
 import { CountDown } from './components/CountDown';
 
@@ -41,7 +41,7 @@ interface CyclesContextType {
   activeCycle: Cycle | undefined;
 }
 
-const CyclesContext = createContext({} as CyclesContextType)
+export const CyclesContext = createContext({} as CyclesContextType)
 
 export function Home() {
 
@@ -141,8 +141,8 @@ export function Home() {
   return (
     <HomeContainer>
       <form onSubmit={handleSubmit(HandleNewCicle)}>
-        
-        <CyclesContext.Provider>
+
+        <CyclesContext.Provider value={{activeCycle}}>
           <NewCycleForm />
           <CountDown />
         </CyclesContext.Provider>
