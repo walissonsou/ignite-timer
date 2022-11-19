@@ -11,7 +11,7 @@ import {
   StopCountDownButton,  
 } from "./style";
 
-import { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { NewCycleForm } from './components/NewCycleForm';
 import { CountDown } from './components/CountDown';
 
@@ -39,6 +39,8 @@ interface Cycle{
 
 interface CyclesContextType {
   activeCycle: Cycle | undefined;
+  activeId: string| null;
+  setActiveId: React.Dispatch<React.SetStateAction<Cycle[]>>;
   register: any;
 }
 
@@ -71,37 +73,7 @@ export function Home() {
   const minutes = String(quantidadeDeMinutos).padStart(2, '0')
   const seconds = String(quantidadeDeSegundos).padStart(2, '0')
 
-  useEffect(() => {
-    let interval: number
-
-    if (activeCycle) {
-      interval = setInterval(() => {
-        const secondsDiference = differenceInSeconds(
-          new Date(),
-          activeCycle.start
-        )
-
-        if (secondsDiference >= totalDeSegundos) {
-          setCycle(
-            cycle.map((cycle) => {
-              if (cycle.id == activeId) {
-                return { ...cycle, finishDate: new Date() }
-              } else
-                return cycle
-            })
-          )
-        } else {
-          setQtddSegundosPassados(secondsDiference)
-        }
-       
-      }, 1000)
-    }
-
-    return () => {
-      clearInterval(interval)
-    }
-  }, [activeCycle, totalDeSegundos])
-
+  
   useEffect(() => {
     if (activeCycle) {
       document.title = `${minutes}:${seconds}`
