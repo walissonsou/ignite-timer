@@ -4,17 +4,16 @@ import { v4 as uuidv4 } from 'uuid';
 import * as zod from 'zod'
 import { differenceInSeconds } from 'date-fns'
 import { HandPalm, Play } from 'phosphor-react'
+
 import {
-  CountdownContainer,
-  FormContainer,
-  HomeContainer,
-  Separator,
+  HomeContainer,  
   StartCountDownButton,
-  StopCountDownButton,
-  TaskInput,
-  TaskInputCount
+  StopCountDownButton,  
 } from "./style";
+
 import { useEffect, useState } from 'react';
+import { NewCycleForm } from './components/NewCycleForm';
+import { CountDown } from './components/CountDown';
 
 interface itemsForm {
   task: string;
@@ -136,41 +135,9 @@ export function Home() {
   return (
     <HomeContainer>
       <form onSubmit={handleSubmit(HandleNewCicle)}>
-        <FormContainer>
-          <label htmlFor="task">
-            Vou trabalhar em
-          </label>
-          <TaskInput
-            id="task"
-            placeholder="Dê um nome para o seu projeto"
-            disabled={!!activeCycle}
-            {...register("task",
-              {
-                required: true,
-                minLength: 5,
-                maxLength: 20
-              })}>
-
-          </TaskInput>
-          <label htmlFor="minutes">
-            durante
-          </label>
-          <TaskInputCount
-            type="number"
-            id="minutes"
-            placeholder="0 0"
-            step={1}
-            {...register("timer", { valueAsNumber: true })}>
-          </TaskInputCount>
-          <span> minutos.</span>
-        </FormContainer>
-        <CountdownContainer>
-          <span>{minutes[0]}</span>
-          <span>{minutes[1]}</span>
-          <Separator>:</Separator>
-          <span>{seconds[0]}</span>
-          <span>{seconds[1]}</span>
-        </CountdownContainer>
+        <NewCycleForm />
+        <CountDown />
+       
         {activeCycle ? (
 
           <StopCountDownButton
