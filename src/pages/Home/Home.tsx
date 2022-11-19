@@ -39,6 +39,7 @@ interface Cycle{
 
 interface CyclesContextType {
   activeCycle: Cycle | undefined;
+  register: any;
 }
 
 export const CyclesContext = createContext({} as CyclesContextType)
@@ -142,7 +143,7 @@ export function Home() {
     <HomeContainer>
       <form onSubmit={handleSubmit(HandleNewCicle)}>
 
-        <CyclesContext.Provider value={{activeCycle}}>
+        <CyclesContext.Provider value={{activeCycle, register }}>
           <NewCycleForm />
           <CountDown />
         </CyclesContext.Provider>
