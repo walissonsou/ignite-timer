@@ -40,12 +40,7 @@ interface Cycle{
 interface CyclesContextType {
   activeCycle: Cycle | undefined;
   activeId: string| null;
-  setActiveId: React.Dispatch<React.SetStateAction<Cycle[]>>;
-  register: any;
-  setCycle: any;
-  qQtddDeSegundosPassados: any;
-  setQtddSegundosPassados: any;
-  cycle: any;
+  handleStopCount: () => void; 
 }
 
 export const CyclesContext = createContext({} as CyclesContextType)
@@ -54,8 +49,7 @@ export function Home() {
 
   const [activeId, setActiveId] = useState<string | null>(null)
   const [cycle, setCycle] = useState<Cycle[]>([])
-  const [qQtddDeSegundosPassados, setQtddSegundosPassados] = useState(0)
-
+  
   const { register, handleSubmit, watch, reset } = useForm<itemsForm>({
     resolver: zodResolver(newCycleFormSchema),
     defaultValues: {
@@ -68,21 +62,7 @@ export function Home() {
   // calculo o segundo que foi passado no input
   const totalDeSegundos = activeCycle ? activeCycle.timer * 60 : 0
   // verifico quantos segundos tem atualmente
-  const atuaisSegundos = activeCycle ? totalDeSegundos - qQtddDeSegundosPassados : 0
-  // calculo e arredondo para nao ficar um numero quebrado a qtdd de minutos
-  const quantidadeDeMinutos = Math.floor(atuaisSegundos / 60)
-  // verifico a parte inteira dos atuais segundos 
-  const quantidadeDeSegundos = atuaisSegundos % 60
-  // Passo o number para string e falo que para preencher o caractere com 2 caracteres, e quando nao ouver, preencher com '0'
-  const minutes = String(quantidadeDeMinutos).padStart(2, '0')
-  const seconds = String(quantidadeDeSegundos).padStart(2, '0')
-
   
-  useEffect(() => {
-    if (activeCycle) {
-      document.title = `${minutes}:${seconds}`
-    }
-  }, [minutes, seconds])
 
   const id = uuidv4()
 
@@ -119,10 +99,13 @@ export function Home() {
     <HomeContainer>
       <form onSubmit={handleSubmit(HandleNewCicle)}>
 
-        <CyclesContext.Provider value={{activeCycle, register }}>
+        <CyclesContext.Provider value={{activeCycle,activeId, handleStopCount }}>
           <NewCycleForm />
           <CountDown />
         </CyclesContext.Provider>
+        
+        
+        
         {activeCycle ? (
 
           <StopCountDownButton
