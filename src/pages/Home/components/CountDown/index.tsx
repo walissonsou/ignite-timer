@@ -8,6 +8,37 @@ export function CountDown() {
 
   const minutes = String(quantidadeDeMinutos).padStart(2, '0')
   const seconds = String(quantidadeDeSegundos).padStart(2, '0')
+  
+  useEffect(() => {
+    let interval: number
+
+    if (activeCycle) {
+      interval = setInterval(() => {
+        const secondsDiference = differenceInSeconds(
+          new Date(),
+          activeCycle.start
+        )
+
+        if (secondsDiference >= totalDeSegundos) {
+          setCycle(
+            cycle.map((cycle) => {
+              if (cycle.id == activeId) {
+                return { ...cycle, finishDate: new Date() }
+              } else
+                return cycle
+            })
+          )
+        } else {
+          setQtddSegundosPassados(secondsDiference)
+        }
+       
+      }, 1000)
+    }
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [activeCycle, totalDeSegundos])
 
   return (   
 
