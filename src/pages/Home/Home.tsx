@@ -42,6 +42,10 @@ interface CyclesContextType {
   activeId: string| null;
   setActiveId: React.Dispatch<React.SetStateAction<Cycle[]>>;
   register: any;
+  setCycle: any;
+  qQtddDeSegundosPassados: any;
+  setQtddSegundosPassados: any;
+  cycle: any;
 }
 
 export const CyclesContext = createContext({} as CyclesContextType)
